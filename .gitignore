@@ -1,0 +1,10 @@
+.env
+
+# Compiled binaries
+chat
+go-chat
+main
+
+# Claude Code
+.claude/
+skills-lock.json
