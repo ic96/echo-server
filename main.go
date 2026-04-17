@@ -4,8 +4,9 @@ import (
 	"go-chat/config"
 	"go-chat/server"
 
-	"github.com/tmc/langchaingo/llms/openai"
 	"log"
+
+	"github.com/tmc/langchaingo/llms/openai"
 )
 
 const (

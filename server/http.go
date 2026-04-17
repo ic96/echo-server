@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"go-chat/config"
 	"go-chat/handlers"
@@ -20,7 +21,14 @@ import (
 
 func StartHTTP(addr, grpcAddr string, cfg *config.Config, llm llms.Model) {
 	gwMux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+			ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			defer cancel()
+			return invoker(ctx, method, req, reply, cc, opts...)
+		}),
+	}
 	if err := chatv1.RegisterChatServiceHandlerFromEndpoint(context.Background(), gwMux, grpcAddr, opts); err != nil {
 		log.Fatalf("failed to register gateway: %v", err)
 	}
